@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 
 export const connectDb = async () => {
-    return mongoose.connect('mongodb+srv://xys2376:Qwerty1234@practisecluster.4ordkpu.mongodb.net/?appName=practiseCluster');
+    return mongoose.connect('mongodb+srv://restApiUsername:Ahad1234@restapi.p2jwpyc.mongodb.net/?appName=restApi');
 }
 
 connectDb().then(() => {
