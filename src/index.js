@@ -3,7 +3,7 @@ import { auth } from './middleware/auth.js';
 import { connectDb } from './config/database.js';
 
 
-const PORT = 1111
+const PORT = 2222
 const app = express()
 
 app.use("/admin", auth)
