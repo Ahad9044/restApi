@@ -1,5 +1,6 @@
 import express from 'express'
 import { auth } from './middleware/auth.js';
+import { connectDb } from './config/database.js';
 
 
 const PORT = 1111
@@ -12,5 +13,7 @@ app.get("/admin/data", (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`App is listening on port ${PORT}`);
+    connectDb()
+        .then(() => { console.log(`App is listening on port ${PORT}`); })
+
 })
