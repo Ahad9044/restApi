@@ -5,6 +5,7 @@ import validate from './utils/validate.js';
 import bycrypt from 'bcrypt'
 import cookieParser from 'cookie-parser';
 import jwt from 'jsonwebtoken'
+import { auth } from './middleware/auth.js';
 
 
 const PORT = 2222
@@ -92,17 +93,10 @@ app.post("/login", async (req, res) => {
     }
 })
 
-app.get("/profilee", async (req, res) => {
+app.get("/profilee", auth, async (req, res) => {
     try {
-
-        const token = req.cookies.token;
-        if (!token) {
-            return res.status(401).send("Unauthorised request")
-        }
-        const decoded = jwt.verify(token, "Ahad1234@")
-        const user = await modelExpo.findOne({ _id: decoded.id })
-        res.send(user)
-
+        // req.user= user
+        res.send(req.user)
     } catch (err) {
         console.error("Error in /profile route:", err);
         res.status(500).send("Something went wrong!");
