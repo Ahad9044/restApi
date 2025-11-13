@@ -1,4 +1,6 @@
 import mongoose from 'mongoose';
+import jwt from 'jsonwebtoken'
+import bycrypt from 'bcrypt'
 
 const { Schema } = mongoose;
 
@@ -13,7 +15,7 @@ const userSchema = new Schema({
   },
   password: {
     type: String,
-    required : true
+    required: true
   },
   age: {
     type: Number,
@@ -46,5 +48,17 @@ const userSchema = new Schema({
 
   }
 });
+userSchema.methods.getJWT = async function () {
+  const user = this
+  let token = jwt.sign({ id: user._id }, "Ahad1234@")
+  return token
+}
 
+userSchema.methods.checkPassword = async function (password) {
+  const user = this
+  const isPasswordValid = await bycrypt.compare(
+    password,
+    user.password)
+    return isPasswordValid
+}
 export const modelExpo = mongoose.model('Blog', userSchema);

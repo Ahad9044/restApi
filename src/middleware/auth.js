@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import { modelExpo } from "../models/user.js";
 
+
 export const auth = async (req, res, next) => {
   try {
     const { token } = req.cookies;  // ✅ should be 'req.cookies'

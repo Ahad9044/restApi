@@ -1,10 +1,11 @@
 import express from 'express'
 import { modelExpo } from './models/user.js';
 import { connectDb } from './config/database.js';
-import validate from './utils/validate.js';
-import bycrypt from 'bcrypt'
+import profileRouter from './router/profile.js';
+import authRouter from './router/authRouter.js';
+
 import cookieParser from 'cookie-parser';
-import jwt from 'jsonwebtoken'
+
 import { auth } from './middleware/auth.js';
 
 
@@ -13,51 +14,9 @@ const app = express()
 app.use(express.json())
 app.use(cookieParser())
 
-app.post("/signup", async (req, res) => {
-    try {
-        const { firstName, lastName, emailId, password, age, gender } = req.body
-        validate(firstName, lastName, emailId, password, age)
-        const passwordHash = await bycrypt.hash(password, 10)
-        const user = new modelExpo({ firstName, lastName, emailId, password: passwordHash, age, gender })
-        await user.save()
-        res.send("User Saved Successfully");
-    } catch (err) {
-        // Handle missing required fields (ValidationError)
-        if (err.name === "ValidationError") {
-            const missingFields = Object.keys(err.errors);
-            return res.status(400).send({
-                message: "Missing or invalid fields",
-                details: missingFields.map(field => `${field} is required`),
-            });
-        }
-        // Handle duplicate email (MongoServerError)
-        if (err.code === 11000) {
-            const duplicateKey = Object.keys(err.keyValue)[0];
-            return res.status(409).send({
-                message: `${duplicateKey} already exists`,
-                value: err.keyValue[duplicateKey],
-            });
-        }
+app.use("/", authRouter)
+app.use("/" , profileRouter)
 
-        // Generic fallback
-        res.status(500).send({ message: "Something went wrong", error: err.message });
-    }
-
-})
-
-app.get("/profile", async (req, res) => {
-    try {
-        const user = await modelExpo.findOne({ _id: req._id })
-        if (user.length == 0) {
-            res.send("No user found!!")
-        } else {
-
-            res.send(user)
-        }
-    } catch (err) {
-        res.status(401).send("Something went wrong: " + err.message)
-    }
-})
 
 app.patch("/profile", async (req, res) => {
     const user = req.body
@@ -69,29 +28,6 @@ app.patch("/profile", async (req, res) => {
     }
 })
 
-app.post("/login", async (req, res) => {
-    try {
-        const { emailId, password } = req.body
-        const user = await modelExpo.findOne({ emailId })
-        if (!user) {
-            return res.status(401).send("No user found!")
-        }
-        else {
-
-            const isPasswordValid = await bycrypt.compare(password, user.password)
-            if (isPasswordValid) {
-                let token = jwt.sign({ id: user._id }, "Ahad1234@")
-                res.cookie("token", token)
-                res.send("Login Successful !!")
-            }
-            else {
-                return res.status(401).send("Password Incorrect!!")
-            }
-        }
-    } catch (err) {
-        res.status(401).send("Something went wrong! " + err)
-    }
-})
 
 app.get("/profilee", auth, async (req, res) => {
     try {

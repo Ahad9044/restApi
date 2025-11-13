@@ -19,4 +19,5 @@ const validate = (firstName, lastName, emailId, password, age) => {
     }
     return true
 }
+
 export default validate
